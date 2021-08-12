@@ -6,10 +6,10 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/airresult.dart';
+import 'package:flutter_application_1/example/airresult.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:flutter_application_1/bloc/air_Bloc.dart';
+import 'package:flutter_application_1/example/bloc/air_Bloc.dart';
 import 'package:http/http.dart' as http;
 
 import 'dart:convert';

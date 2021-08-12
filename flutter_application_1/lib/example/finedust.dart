@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/airresult.dart';
+import 'package:flutter_application_1/example/airresult.dart';
 
-import 'bloc/air_Bloc.dart';
+import 'package:flutter_application_1/example/bloc/air_Bloc.dart';
 
 void main() => runApp(MyApp());
 
