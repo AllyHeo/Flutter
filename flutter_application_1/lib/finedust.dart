@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/airresult.dart';
-//import 'package:flutter_application_1/widget_test.dart';
 
-import 'package:http/http.dart' as http;
-
-import 'dart:convert';
+import 'bloc/air_Bloc.dart';
 
 void main() => runApp(MyApp());
+
+final airBloc = AirBloc();
 
 class MyApp extends StatelessWidget {
   @override
@@ -27,110 +26,128 @@ class Main extends StatefulWidget {
 }
 
 class _MainState extends State<Main> {
-  late AirResult _result;
-
-  Future<AirResult> fetchData() async {
-    var response = await http.get(
-      Uri.parse(
-          'http://api.airvisual.com/v2/nearest_city?key=95056979-70f4-48e0-b41d-ff9af8613029'),
-    );
-
-    AirResult result = AirResult.fromJson(json.decode(response.body));
-
-    return result;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    fetchData().then((airResult) {
-      setState(() {
-        _result = airResult;
-      });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Center(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                '현재 위치 미세먼지',
-                style: TextStyle(fontSize: 30),
-              ),
-              SizedBox(
-                height: 16,
-              ),
-              Card(
-                child: Column(
-                  children: <Widget>[
-                    Container(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: <Widget>[
-                          Text('얼굴사진'),
-                          Text(
-                            '${_result.data!.current!.pollution!.aqius}',
-                            style: TextStyle(fontSize: 40),
-                          ),
-                          Text(
-                            '보통',
-                            style: TextStyle(fontSize: 20),
-                          ),
-                        ],
-                      ),
-                      color: Colors.yellow,
-                      padding: const EdgeInsets.all(8.0),
+      child: StreamBuilder<AirResult>(
+          stream: airBloc.airResult,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return buildBody(snapshot.data);
+            } else {
+              return CircularProgressIndicator();
+            }
+          }),
+    ));
+  }
+
+  Widget buildBody(AirResult? result) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              '현재 위치 미세먼지',
+              style: TextStyle(fontSize: 30),
+            ),
+            SizedBox(
+              height: 16,
+            ),
+            Card(
+              child: Column(
+                children: <Widget>[
+                  Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: <Widget>[
+                        Text('얼굴사진'),
+                        Text(
+                          '${result!.data!.current!.pollution!.aqius}',
+                          style: TextStyle(fontSize: 40),
+                        ),
+                        Text(
+                          getString(result),
+                          style: TextStyle(fontSize: 20),
+                        ),
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: <Widget>[
-                          Row(
-                            children: <Widget>[
-                              Text('이미지'),
-                              SizedBox(
-                                width: 16,
-                              ),
-                              Text(
-                                '${_result.data!.current!.weather!.tp}',
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ],
-                          ),
-                          Text('습도 ${_result.data!.current!.weather!.hu}%'),
-                          Text('풍속 ${_result.data!.current!.weather!.ws}m/s'),
-                        ],
-                      ),
+                    color: getColor(result),
+                    padding: const EdgeInsets.all(8.0),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: <Widget>[
+                        Row(
+                          children: <Widget>[
+                            Image.network(
+                              'https://airvisual.com/images/${result.data!.current!.weather!.ic}.png',
+                              width: 32,
+                              height: 32,
+                            ),
+                            SizedBox(
+                              width: 16,
+                            ),
+                            Text(
+                              '${result.data!.current!.weather!.tp}',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ],
+                        ),
+                        Text('습도 ${result.data!.current!.weather!.hu}%'),
+                        Text('풍속 ${result.data!.current!.weather!.ws}m/s'),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              SizedBox(
-                height: 16,
+            ),
+            SizedBox(
+              height: 16,
+            ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(30),
+              child: RaisedButton(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 15.0, horizontal: 50),
+                color: Colors.orange,
+                child: Icon(Icons.refresh, color: Colors.white),
+                onPressed: () {
+                  airBloc.fetch();
+                },
               ),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(30),
-                child: RaisedButton(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 15.0, horizontal: 50),
-                  color: Colors.orange,
-                  child: Icon(Icons.refresh, color: Colors.white),
-                  onPressed: () {},
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-    ));
+    );
+  }
+
+  Color getColor(AirResult result) {
+    if (result.data!.current!.pollution!.aqius! <= 50) {
+      return Colors.greenAccent;
+    } else if (result.data!.current!.pollution!.aqius! <= 100) {
+      return Colors.yellow;
+    } else if (result.data!.current!.pollution!.aqius! <= 150) {
+      return Colors.orange;
+    } else {
+      return Colors.red;
+    }
+  }
+
+  String getString(AirResult result) {
+    if (result.data!.current!.pollution!.aqius! <= 50) {
+      return "좋음";
+    } else if (result.data!.current!.pollution!.aqius! <= 100) {
+      return "보통";
+    } else if (result.data!.current!.pollution!.aqius! <= 150) {
+      return "나쁨";
+    } else {
+      return "최악";
+    }
   }
 }
