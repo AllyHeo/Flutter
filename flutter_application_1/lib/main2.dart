@@ -55,34 +55,10 @@ class _MainState extends State<Main> {
               width: 350,
               height: 600,
               alignment: Alignment.center,
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Icon(Icons.favorite, size: 50),
-                    SizedBox(width: 10, height: 40),
-                    Text(
-                      '위치: 남부권 경기',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    Text(
-                      '단계:  주의보',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    Text(
-                      '미세먼지농도: ${_result.body.items.issueVal}',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    Text(
-                      '발령일: 2020-10-28',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    Text(
-                      '발령시간: 03:00',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  ])),
+              child: Form 
+              ),
         ),
       ),
     );
-  }
+  
 }
