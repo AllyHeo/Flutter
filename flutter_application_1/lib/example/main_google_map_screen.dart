@@ -1,7 +1,7 @@
 //https://youtu.be/gTHKFRRSPss
 
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/google_map_screen.dart';
+import 'package:flutter_application_1/example/google_map_screen.dart';
 
 void main() => runApp(MyApp());
 
