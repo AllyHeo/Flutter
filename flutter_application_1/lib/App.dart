@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Bloc.dart';
 import 'package:flutter_application_1/data.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:flutter_application_1/Map.dart';
+import 'package:flutter_application_1/ListView.dart';
 
 void main() => runApp(MyApp());
+
+final airBloc = AirBloc();
 
 class MyApp extends StatelessWidget {
   @override
@@ -11,7 +14,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.blueGrey,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: Main(),
     );
@@ -24,30 +28,6 @@ class Main extends StatefulWidget {
 }
 
 class _MainState extends State<Main> {
-  late AirResult _result;
-
-  Future<AirResult> fetchData() async {
-    var response = await http.get(
-      Uri.parse(
-          'http://api.airvisual.com/v2/nearest_city?key=95056979-70f4-48e0-b41d-ff9af8613029'),
-    );
-
-    AirResult result = AirResult.fromJson(json.decode(response.body));
-
-    return result;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    fetchData().then((airResult) {
-      setState(() {
-        _result = airResult;
-      });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,7 +38,12 @@ class _MainState extends State<Main> {
             Icons.menu,
             color: Colors.black,
           ),
-          onPressed: () {},
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ListViewScreen(),
+            ),
+          ),
         ),
         title: Text(
           '미세먼지 경보발령안내',
@@ -69,47 +54,76 @@ class _MainState extends State<Main> {
         ),
         centerTitle: true,
       ),
-      body: Center(
-        child: Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16.0),
+      body: StreamBuilder<AirResult>(
+          stream: airBloc.airResult,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return buildBody(snapshot.data);
+            } else {
+              return Center(child: CircularProgressIndicator());
+            }
+          }),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(right: 30, bottom: 585),
+        child: Container(
+          width: 40,
+          height: 40,
+          child: FloatingActionButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => GoogleMapScreen(),
+              ),
+            ),
+            tooltip: 'Increment',
+            child: Icon(Icons.pin_drop_outlined),
           ),
-          elevation: 10,
-          child: Container(
-              width: 350,
-              height: 600,
-              alignment: Alignment.center,
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Icon(Icons.favorite, size: 100, color: getColor(_result)),
-                    SizedBox(width: 10, height: 40),
-                    Text(
-                      ' 국가: ${_result.data!.country}',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    Text(
-                      '지역:${_result.data!.state}',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    Text(
-                      '도시: ${_result.data!.city}',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    Text(
-                      getString(_result),
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    Text(
-                      '미세먼지농도: ${_result.data!.current!.pollution!.aqius} ㎍/m³',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    Text(
-                      '측정시각: ${_result.data!.current!.pollution!.ts}',
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  ])),
         ),
+      ),
+    );
+  }
+
+  Widget buildBody(AirResult? _result) {
+    return Center(
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0),
+        ),
+        elevation: 10,
+        child: Container(
+            width: 350,
+            height: 600,
+            alignment: Alignment.center,
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Icon(Icons.favorite, size: 100, color: getColor(_result!)),
+                  SizedBox(width: 10, height: 40),
+                  Text(
+                    ' 국가: ${_result.data!.country}',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  Text(
+                    '지역:${_result.data!.state}',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  Text(
+                    '도시: ${_result.data!.city}',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  Text(
+                    getString(_result),
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  Text(
+                    '미세먼지농도: ${_result.data!.current!.pollution!.aqius} ㎍/m³',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  Text(
+                    '측정시각: ${_result.data!.current!.pollution!.ts}',
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ])),
       ),
     );
   }
