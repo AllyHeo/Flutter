@@ -1,10 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.flutter_application_1">
    <application
+        android:name="io.flutter.app.FlutterApplication"
         android:label="flutter_application_1"
         android:icon="@mipmap/ic_launcher">
-        <meta-data android:name="com.google.android.geo.API_KEY"
-               android:value="AIzaSyD3Jl_aTn5ZSZGx7Ba79oqrhCaUMQD870A"/>
+        
+        <meta-data
+    android:name="com.google.android.geo.API_KEY"
+    android:value="${MAPS_API_KEY}" />
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
