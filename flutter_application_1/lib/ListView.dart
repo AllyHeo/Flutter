@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Map.dart';
+import 'package:flutter_application_1/Search.dart';
 
 class ListViewScreen extends StatefulWidget {
   @override
@@ -35,10 +36,15 @@ class _ListViewScreenState extends State<ListViewScreen> {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.audiotrack),
-            title: Text('예정'),
+            leading: Icon(Icons.campaign),
+            title: Text('미세먼지경보목록'),
             trailing: Icon(Icons.navigate_next),
-            onTap: () {},
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => FineDustAlertList(),
+              ),
+            ),
           ),
           ListTile(
             leading: Icon(Icons.audiotrack),
