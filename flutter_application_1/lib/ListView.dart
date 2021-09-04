@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Map.dart';
 import 'package:flutter_application_1/Search.dart';
+import 'package:flutter_application_1/koreamap.dart';
 
 class ListViewScreen extends StatefulWidget {
   @override
@@ -37,12 +38,23 @@ class _ListViewScreenState extends State<ListViewScreen> {
           ),
           ListTile(
             leading: Icon(Icons.campaign),
-            title: Text('미세먼지경보목록'),
+            title: Text('미세먼지경보 목록'),
             trailing: Icon(Icons.navigate_next),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => FineDustAlertList(),
+              ),
+            ),
+          ),
+          ListTile(
+            leading: Icon(Icons.campaign),
+            title: Text('미세먼지경보 지도'),
+            trailing: Icon(Icons.navigate_next),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => KoreaMap(),
               ),
             ),
           ),
